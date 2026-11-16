@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from database import prezzo_DAO
 from database.prezzo_DAO import PrezzoDAO
 
 '''
@@ -16,7 +17,13 @@ class Distributore:
 
     def get_prezzi(self):
         """ Aggiorna e Restituisce la lista di prezzi (self.lista_prezzi) associati al distributore"""
-        # TODO
+        # Controllo se ho già scaricato i prezzi di questo distributore dal DB.
+        # Se lista_prezzi è None, è la prima volta che mi servono: chiamo il DAO e li salvo.
+        if self.lista_prezzi is None:
+            self.lista_prezzi = PrezzoDAO.get_prezzi(self.id)
+        # Se invece li avevo già scaricati in precedenza, li restituisco subito dalla memoria
+        # senza rifare una query al database (tecnica del "lazy loading").
+        return self.lista_prezzi
 
     def __eq__(self, other):
         return isinstance(other, Distributore) and self.id == other.id
